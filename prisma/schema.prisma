@@ -7,12 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  menuItems   MenuItem[]
+}
+
 model MenuItem {
   id          String   @id @default(cuid())
   name        String
   description String
   price       Float
-  category    String
+  category    String?  // Keep temporarily for backwards compatibility
+  categoryId  String?
+  categoryRel Category? @relation(fields: [categoryId], references: [id])
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -54,4 +63,45 @@ model OrderItem {
   quantity      Int
   priceAtTime   Float
   specialInstructions String?
+}
+
+// EMS Models
+
+model Employee {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  role          String
+  contactNumber String
+  email         String?
+  baseSalary    Float
+  joinDate      DateTime
+  status        String   @default("ACTIVE")
+  attendances   Attendance[]
+  leaveRequests LeaveRequest[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Attendance {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime
+  checkIn     DateTime?
+  checkOut    DateTime?
+  status      String    // PRESENT, ABSENT, ON_LEAVE
+  createdAt   DateTime  @default(now())
+}
+
+model LeaveRequest {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  reason      String
+  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

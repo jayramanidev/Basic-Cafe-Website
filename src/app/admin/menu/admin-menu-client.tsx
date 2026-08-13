@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { MenuItem } from "@prisma/client";
+import { MenuItem, Category } from "@prisma/client";
 import { createMenuItem, deleteMenuItem, updateMenuItem } from "@/actions/menu";
 
-export default function AdminMenuClient({ initialItems }: { initialItems: MenuItem[] }) {
-  const [items, setItems] = useState(initialItems);
+type MenuItemWithCategory = MenuItem & { categoryRel?: Category | null };
+
+export default function AdminMenuClient({ initialItems, categories }: { initialItems: MenuItemWithCategory[], categories: Category[] }) {
+  const [items, setItems] = useState<MenuItemWithCategory[]>(initialItems);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
@@ -17,18 +19,18 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       price: parseFloat(formData.get("price") as string),
-      category: formData.get("category") as string,
+      categoryId: formData.get("categoryId") as string,
       image: (formData.get("image") as string) || undefined,
     };
 
     try {
       if (editingItem) {
         const updatedItem = await updateMenuItem(editingItem.id, data);
-        setItems(items.map(item => item.id === editingItem.id ? updatedItem : item));
+        setItems(items.map(item => item.id === editingItem.id ? { ...updatedItem, categoryRel: categories.find(c => c.id === data.categoryId) } : item));
         setEditingItem(null);
       } else {
         const newItem = await createMenuItem(data);
-        setItems([...items, newItem]);
+        setItems([...items, { ...newItem, categoryRel: categories.find(c => c.id === data.categoryId) }]);
         e.currentTarget.reset();
       }
       setStatus("success");
@@ -66,7 +68,12 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
         <form key={editingItem?.id || 'new'} onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input name="name" defaultValue={editingItem?.name} required placeholder="Name" className="p-3 border border-gray-200 rounded-xl text-[#4a3f35] focus:outline-none focus:border-[#d4a373] focus:ring-1 focus:ring-[#d4a373]" />
-            <input name="category" defaultValue={editingItem?.category} required placeholder="Category" className="p-3 border border-gray-200 rounded-xl text-[#4a3f35] focus:outline-none focus:border-[#d4a373] focus:ring-1 focus:ring-[#d4a373]" />
+            <select name="categoryId" defaultValue={editingItem?.categoryId || ""} required className="p-3 border border-gray-200 rounded-xl text-[#4a3f35] focus:outline-none focus:border-[#d4a373] focus:ring-1 focus:ring-[#d4a373] bg-white">
+              <option value="" disabled>Select Category</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
             <input name="price" defaultValue={editingItem?.price} required type="number" step="0.01" placeholder="Price" className="p-3 border border-gray-200 rounded-xl text-[#4a3f35] focus:outline-none focus:border-[#d4a373] focus:ring-1 focus:ring-[#d4a373]" />
             <input name="image" defaultValue={editingItem?.image || ""} placeholder="Image URL (optional)" className="p-3 border border-gray-200 rounded-xl text-[#4a3f35] focus:outline-none focus:border-[#d4a373] focus:ring-1 focus:ring-[#d4a373]" />
           </div>
@@ -88,7 +95,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
           {items.map(item => (
             <div key={item.id} className={`flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 border rounded-xl transition-colors ${editingItem?.id === item.id ? 'border-[#d4a373] bg-[#fdfbf7]' : 'border-gray-100 hover:border-gray-200'}`}>
               <div className="mb-4 sm:mb-0">
-                <h3 className="font-bold text-lg">{item.name} <span className="text-sm font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-full ml-2">{item.category}</span></h3>
+                <h3 className="font-bold text-lg">{item.name} <span className="text-sm font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-full ml-2">{item.categoryRel?.name || item.category}</span></h3>
                 <p className="text-[#d4a373] font-bold mt-1">₹{item.price.toFixed(2)}</p>
               </div>
               <div className="flex gap-3">
