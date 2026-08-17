@@ -20,13 +20,21 @@ export default function AdminCategoryClient({ initialCategories }: { initialCate
 
     try {
       if (editingCat) {
-        const updated = await updateCategory(editingCat.id, data);
-        setCategories(categories.map(c => c.id === editingCat.id ? updated : c));
-        setEditingCat(null);
+        const result = await updateCategory(editingCat.id, data);
+        if (result.success && result.category) {
+          setCategories(categories.map(c => c.id === editingCat.id ? result.category! : c));
+          setEditingCat(null);
+        } else {
+          throw new Error(result.error);
+        }
       } else {
-        const newCat = await createCategory(data);
-        setCategories([...categories, newCat]);
-        e.currentTarget.reset();
+        const result = await createCategory(data);
+        if (result.success && result.category) {
+          setCategories([...categories, result.category]);
+          e.currentTarget.reset();
+        } else {
+          throw new Error(result.error);
+        }
       }
       setStatus("success");
       setTimeout(() => setStatus("idle"), 3000);

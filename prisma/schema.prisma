@@ -21,7 +21,7 @@ model MenuItem {
   price       Float
   category    String?  // Keep temporarily for backwards compatibility
   categoryId  String?
-  categoryRel Category? @relation(fields: [categoryId], references: [id])
+  categoryRel Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

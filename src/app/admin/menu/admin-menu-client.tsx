@@ -25,13 +25,21 @@ export default function AdminMenuClient({ initialItems, categories }: { initialI
 
     try {
       if (editingItem) {
-        const updatedItem = await updateMenuItem(editingItem.id, data);
-        setItems(items.map(item => item.id === editingItem.id ? { ...updatedItem, categoryRel: categories.find(c => c.id === data.categoryId) } : item));
-        setEditingItem(null);
+        const result = await updateMenuItem(editingItem.id, data);
+        if (result.success && result.item) {
+          setItems(items.map(item => item.id === editingItem.id ? { ...result.item!, categoryRel: categories.find(c => c.id === data.categoryId) } : item));
+          setEditingItem(null);
+        } else {
+          throw new Error(result.error);
+        }
       } else {
-        const newItem = await createMenuItem(data);
-        setItems([...items, { ...newItem, categoryRel: categories.find(c => c.id === data.categoryId) }]);
-        e.currentTarget.reset();
+        const result = await createMenuItem(data);
+        if (result.success && result.item) {
+          setItems([...items, { ...result.item, categoryRel: categories.find(c => c.id === data.categoryId) }]);
+          e.currentTarget.reset();
+        } else {
+          throw new Error(result.error);
+        }
       }
       setStatus("success");
       setTimeout(() => setStatus("idle"), 3000);

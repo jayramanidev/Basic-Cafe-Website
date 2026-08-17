@@ -63,11 +63,9 @@ export default function CheckoutPage() {
     const result = await createOrder({
       customerName: formData.customerName,
       tableNumber: formData.tableNumber,
-      totalAmount: cart.getTotalPrice(),
       items: cart.items.map(item => ({
         menuItemId: item.id,
         quantity: item.quantity,
-        priceAtTime: item.price,
       }))
     });
 

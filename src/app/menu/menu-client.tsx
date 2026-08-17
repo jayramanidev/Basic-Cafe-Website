@@ -11,7 +11,7 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
   const [activeCategory, setActiveCategory] = useState("all");
   const addItem = useCartStore((state) => state.addItem);
 
-  const categories = [{ id: "all", name: "All" }, ...Array.from(new Set(menuItems.map(i => i.category))).map(c => ({ id: c, name: c }))];
+  const categories = [{ id: "all", name: "All" }, ...Array.from(new Set(menuItems.map(i => i.category).filter((c): c is string => c !== null))).map(c => ({ id: c, name: c }))];
 
   const filteredItems = activeCategory === "all" 
     ? menuItems 

@@ -5,62 +5,91 @@ import { revalidatePath } from 'next/cache'
 
 // Employees
 export async function getEmployees() {
-  return await prisma.employee.findMany({
-    orderBy: { firstName: 'asc' }
-  })
+  try {
+    return await prisma.employee.findMany({
+      orderBy: { firstName: 'asc' }
+    })
+  } catch (error) {
+    console.error("Failed to get employees:", error)
+    return []
+  }
 }
 
 export async function createEmployee(data: { firstName: string, lastName: string, role: string, contactNumber: string, email?: string, baseSalary: number, joinDate: string, status?: string }) {
-  // Check for duplicate name
-  const existing = await prisma.employee.findFirst({
-    where: {
-      firstName: { equals: data.firstName },
-      lastName: { equals: data.lastName }
+  try {
+    if (!data.firstName || !data.lastName || data.baseSalary < 0) {
+      return { success: false, error: "Invalid employee data." }
     }
-  });
-  
-  if (existing) {
-    return { error: `An employee with the name ${data.firstName} ${data.lastName} already exists.` };
-  }
 
-  await prisma.employee.create({ 
-    data: {
-      ...data,
-      joinDate: new Date(data.joinDate)
-    } 
-  })
-  revalidatePath('/admin/employees')
-  return { success: true }
+    // Check for duplicate name
+    const existing = await prisma.employee.findFirst({
+      where: {
+        firstName: { equals: data.firstName },
+        lastName: { equals: data.lastName }
+      }
+    });
+    
+    if (existing) {
+      return { success: false, error: `An employee with the name ${data.firstName} ${data.lastName} already exists.` };
+    }
+
+    await prisma.employee.create({ 
+      data: {
+        ...data,
+        joinDate: new Date(data.joinDate)
+      } 
+    })
+    revalidatePath('/admin/employees')
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to create employee:", error)
+    return { success: false, error: "Failed to create employee." }
+  }
 }
 
 export async function updateEmployee(id: string, data: { firstName: string, lastName: string, role: string, contactNumber: string, email?: string, baseSalary: number, joinDate: string, status: string }) {
-  // Check for duplicate name (excluding self)
-  const existing = await prisma.employee.findFirst({
-    where: {
-      id: { not: id },
-      firstName: { equals: data.firstName },
-      lastName: { equals: data.lastName }
+  try {
+    if (!data.firstName || !data.lastName || data.baseSalary < 0) {
+      return { success: false, error: "Invalid employee data." }
     }
-  });
-  
-  if (existing) {
-    return { error: `Another employee with the name ${data.firstName} ${data.lastName} already exists.` };
-  }
 
-  await prisma.employee.update({ 
-    where: { id }, 
-    data: {
-      ...data,
-      joinDate: new Date(data.joinDate)
-    } 
-  })
-  revalidatePath('/admin/employees')
-  return { success: true }
+    // Check for duplicate name (excluding self)
+    const existing = await prisma.employee.findFirst({
+      where: {
+        id: { not: id },
+        firstName: { equals: data.firstName },
+        lastName: { equals: data.lastName }
+      }
+    });
+    
+    if (existing) {
+      return { success: false, error: `Another employee with the name ${data.firstName} ${data.lastName} already exists.` };
+    }
+
+    await prisma.employee.update({ 
+      where: { id }, 
+      data: {
+        ...data,
+        joinDate: new Date(data.joinDate)
+      } 
+    })
+    revalidatePath('/admin/employees')
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to update employee:", error)
+    return { success: false, error: "Failed to update employee." }
+  }
 }
 
 export async function deleteEmployee(id: string) {
-  await prisma.employee.delete({ where: { id } })
-  revalidatePath('/admin/employees')
+  try {
+    await prisma.employee.delete({ where: { id } })
+    revalidatePath('/admin/employees')
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to delete employee:", error)
+    return { success: false, error: "Failed to delete employee." }
+  }
 }
 
 // Attendance
