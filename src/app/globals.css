@@ -48,3 +48,21 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
 }
+
+
+@theme inline {
+  /* Hotel Theme Tokens */
+  --color-hotel-primary: #1E3A8A;
+  --color-hotel-primary-on: #FFFFFF;
+  --color-hotel-secondary: #3B82F6;
+  --color-hotel-accent: #A16207;
+  --color-hotel-background: #F8FAFC;
+  --color-hotel-foreground: #1E40AF;
+  --color-hotel-muted: #E9EEF5;
+  --color-hotel-border: #BFDBFE;
+  
+  --font-hotel-sans: 'Work Sans', system-ui, sans-serif;
+  --font-hotel-heading: 'Outfit', system-ui, sans-serif;
+}
+
+
