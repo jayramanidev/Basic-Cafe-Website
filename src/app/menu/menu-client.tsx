@@ -6,6 +6,18 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { MenuItem } from "@prisma/client";
 import { useCartStore } from "@/store/cart";
+import Image from "next/image";
+
+const getFallbackImage = (category: string | null) => {
+  if (!category) return "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop";
+  const cat = category.toLowerCase();
+  if (cat.includes("chaat") || cat.includes("snack")) return "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=1000&auto=format&fit=crop";
+  if (cat.includes("beverage") || cat.includes("drink") || cat.includes("coffee") || cat.includes("tea")) return "https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1000&auto=format&fit=crop";
+  if (cat.includes("south indian") || cat.includes("dosa")) return "https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?q=80&w=1000&auto=format&fit=crop";
+  if (cat.includes("quick bite") || cat.includes("fast food")) return "https://images.unsplash.com/photo-1606491956689-2ea866880c84?q=80&w=1000&auto=format&fit=crop";
+  if (cat.includes("dessert") || cat.includes("sweet")) return "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1000&auto=format&fit=crop";
+  return "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop";
+}
 
 export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -25,15 +37,34 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
         </Link>
       </div>
 
+      <div className="relative w-full h-[40vh] md:h-[50vh] mb-12">
+        <Image 
+          src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2000&auto=format&fit=crop"
+          alt="Cafe Menu Hero"
+          fill
+          className="object-cover brightness-[0.65]"
+          priority
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4 text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-4 tracking-tight drop-shadow-lg"
+          >
+            Our <span className="text-[#d4a373] italic">Menu</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg md:text-2xl font-light tracking-wide max-w-lg drop-shadow-md"
+          >
+            Handpicked flavors, crafted with love.
+          </motion.p>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4">
-        <motion.h1 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-5xl md:text-8xl font-display font-bold mb-4 text-center tracking-tight"
-        >
-          Our <span className="text-[#d4a373] italic">Menu</span>
-        </motion.h1>
-        <p className="text-[#6b6255] text-center mb-14 text-lg font-light tracking-wide max-w-lg mx-auto">Handpicked flavors, crafted with love.</p>
 
         <motion.div 
           initial={{ opacity: 0 }}
@@ -70,7 +101,7 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
               key={item.id}
               className="relative w-full flex justify-center"
             >
-              <DirectionAwareHover imageUrl={item.image || "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1000&auto=format&fit=crop"}>
+              <DirectionAwareHover imageUrl={item.image || getFallbackImage(item.category)}>
                 <div className="flex flex-col justify-end h-full">
                   <p className="font-display font-bold text-xl drop-shadow-md tracking-tight text-white">{item.name}</p>
                   <p className="font-light text-sm text-neutral-200 mt-2 line-clamp-2 drop-shadow leading-relaxed">
