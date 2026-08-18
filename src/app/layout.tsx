@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`${playfair.variable} ${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)] pt-20">
         <Navbar />

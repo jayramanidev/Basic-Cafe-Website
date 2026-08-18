@@ -63,7 +63,7 @@ const menuItems = [
     description: 'Sweet, rich, and creamy yogurt drink blended with fresh mango puree.',
     price: 120,
     category: 'Beverages',
-    image: 'https://images.unsplash.com/photo-1546174620-6d0ed0dfb2f2?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1000&auto=format&fit=crop',
   },
   {
     name: 'South Indian Filter Coffee',
